@@ -3,285 +3,441 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Budget Planner - Register</title>
+    <title>Smart Budget Planner</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#059669">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="auth-page">
-    <!-- Theme Toggle -->
-    <div class="theme-toggle" id="themeToggle">
-        <i class="fas fa-moon"></i>
-    </div>
+<body class="dashboard-page">
+    <div class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></div>
+    <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
 
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-wallet"></i>
-                    </div>
-                    <h1>Smart Budget Planner</h1>
-                </div>
-                <p class="tagline">Master your money with the 50-30-20 rule</p>
-            </div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header"><i class="fas fa-wallet"></i><span>Smart Budget</span></div>
+        <nav class="sidebar-nav">
+            <a href="#overview" class="nav-item active" data-section="overview">
+                <i class="fas fa-home"></i><span>Overview</span>
+            </a>
+            <a href="#expenses" class="nav-item" data-section="expenses">
+                <i class="fas fa-list"></i><span>Expenses</span>
+            </a>
+            <a href="#savings" class="nav-item" data-section="savings">
+                <i class="fas fa-piggy-bank"></i><span>Savings</span>
+            </a>
+            <a href="#insights" class="nav-item" data-section="insights">
+                <i class="fas fa-lightbulb"></i><span>Insights</span>
+            </a>
+            <a href="#reports" class="nav-item" data-section="reports">
+                <i class="fas fa-chart-bar"></i><span>Reports</span>
+            </a>
+            <a href="#add" class="nav-item" data-section="add">
+                <i class="fas fa-plus-circle"></i><span>Add</span>
+            </a>
+            <a href="#backup" class="nav-item" data-section="backup">
+                <i class="fas fa-sticky-note"></i><span>Backup</span>
+            </a>
+            <a href="#settings" class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i><span>Settings</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info"><i class="fas fa-user-circle"></i><span id="usernameDisplay">User</span></div>
+            <button id="logoutBtn" class="btn btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </aside>
 
-            <div class="auth-tabs">
-                <button class="tab-btn" data-tab="login">Login</button>
-                <button class="tab-btn active" data-tab="register">Register</button>
-            </div>
+    <main class="main-content">
+        <header class="dashboard-header">
+            <h2 id="pageTitle">Dashboard Overview</h2>
+        </header>
 
-            <form id="loginForm" class="auth-form">
-                <div class="form-group">
-                    <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="loginEmail" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
-                    <div class="password-input">
-                        <input type="password" id="loginPassword" required placeholder="Enter your password">
-                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary btn-full">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
-            </form>
-
-            <form id="registerForm" class="auth-form active">
-                <div class="form-group">
-                    <label for="regUsername"><i class="fas fa-user"></i> Username</label>
-                    <input type="text" id="regUsername" required placeholder="Choose a username" minlength="3">
-                </div>
-                <div class="form-group">
-                    <label for="regEmail"><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="regEmail" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label for="regPassword"><i class="fas fa-lock"></i> Password</label>
-                    <div class="password-input">
-                        <input type="password" id="regPassword" required placeholder="Create password" minlength="6">
-                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="regIncome"><i class="fas fa-money-bill-wave"></i> Monthly Income (INR)</label>
-                    <input type="number" id="regIncome" placeholder="Optional: Enter monthly income" min="0">
-                </div>
-                <button type="submit" class="btn btn-primary btn-full">
-                    <i class="fas fa-user-plus"></i> Create Account
-                </button>
-            </form>
-
-            <div id="authMessage" class="message"></div>
+        <div id="financialTip" class="tip-card">
+            <div class="tip-icon"><i class="fas fa-lightbulb"></i></div>
+            <div class="tip-content"><span class="tip-label">Financial Tip</span><p id="tipText">Loading...</p></div>
         </div>
 
-        <div class="features-preview">
-            <div class="feature-item">
-                <i class="fas fa-chart-pie"></i>
-                <span>50-30-20 Budget</span>
+        <div id="budgetAlert" class="alert alert-warning hidden"><i class="fas fa-exclamation-triangle"></i><span><strong>Warning:</strong> Budget exceeded!</span></div>
+
+        <!-- Quick Access Buttons - Removed from Overview, use sidebar menu -->
+
+        <section id="overview" class="section active">
+            <div class="summary-cards">
+                <div class="summary-card income">
+                    <div class="summary-icon"><i class="fas fa-wallet"></i></div>
+                    <div class="summary-info"><span class="summary-label">Monthly Income</span><span class="summary-value" data-target="0" data-prefix="₹">₹0</span></div>
+                </div>
+                <div class="summary-card expenses">
+                    <div class="summary-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="summary-info"><span class="summary-label">Total Expenses</span><span class="summary-value" data-target="0" data-prefix="₹">₹0</span></div>
+                </div>
+                <div class="summary-card savings">
+                    <div class="summary-icon"><i class="fas fa-piggy-bank"></i></div>
+                    <div class="summary-info"><span class="summary-label">Total Savings</span><span class="summary-value" data-target="0" data-prefix="₹">₹0</span></div>
+                </div>
+                <div class="summary-card balance">
+                    <div class="summary-icon"><i class="fas fa-balance-scale"></i></div>
+                    <div class="summary-info"><span class="summary-label">Remaining Balance</span><span class="summary-value" data-target="0" data-prefix="₹">₹0</span></div>
+                </div>
+                <div class="summary-card health">
+                    <div class="summary-icon"><i class="fas fa-heartbeat"></i></div>
+                    <div class="summary-info"><span class="summary-label">Budget Health</span><span class="summary-value health-score" data-target="0" data-suffix="%">0%</span><span class="health-status" id="healthStatus">Good</span></div>
+                </div>
             </div>
-            <div class="feature-item">
-                <i class="fas fa-file-csv"></i>
-                <span>Export Excel</span>
+
+            <div class="personality-card">
+                <div class="personality-icon" id="personalityIcon"><i class="fas fa-user"></i></div>
+                <div class="personality-info"><span class="personality-label">Spending Personality</span><span class="personality-type" id="personalityType">Analyzer</span><p class="personality-desc" id="personalityDesc">Add expenses to discover your pattern.</p></div>
             </div>
-            <div class="feature-item">
-                <i class="fas fa-bell"></i>
-                <span>Smart Alerts</span>
+
+            <div class="quick-add-section">
+                <h3><i class="fas fa-bolt"></i> Quick Add</h3>
+                <div class="quick-add-buttons">
+                    <button class="quick-btn" data-category="Food"><i class="fas fa-utensils"></i> Food</button>
+                    <button class="quick-btn" data-category="Transport"><i class="fas fa-bus"></i> Transport</button>
+                    <button class="quick-btn" data-category="Coffee"><i class="fas fa-coffee"></i> Coffee</button>
+                    <button class="quick-btn" data-category="Groceries"><i class="fas fa-shopping-basket"></i> Groceries</button>
+                    <button class="quick-btn" data-category="Entertainment"><i class="fas fa-gamepad"></i> Entertainment</button>
+                    <button class="quick-btn" data-category="Subscriptions"><i class="fas fa-play-circle"></i> Subscriptions</button>
+                </div>
             </div>
-            <div class="feature-item">
-                <i class="fas fa-sticky-note"></i>
-                <span>Notepad</span>
+
+            <div class="budget-progress-section">
+                <div class="budget-progress-card">
+                    <h3><i class="fas fa-chart-pie"></i> Budget Progress</h3>
+                    <div class="budget-progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-header"><span><i class="fas fa-home"></i> Needs (50%)</span><span id="needsProgressText">₹0 / ₹0</span></div>
+                            <div class="progress-bar"><div class="progress-fill needs" id="needsProgressBar" style="width:0%"></div></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header"><span><i class="fas fa-shopping-bag"></i> Wants (30%)</span><span id="wantsProgressText">₹0 / ₹0</span></div>
+                            <div class="progress-bar"><div class="progress-fill wants" id="wantsProgressBar" style="width:0%"></div></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-header"><span><i class="fas fa-piggy-bank"></i> Savings (20%)</span><span id="savingsProgressText">₹0 / ₹0</span></div>
+                            <div class="progress-bar"><div class="progress-fill savings" id="savingsProgressBar" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="feature-item">
-                <i class="fas fa-palette"></i>
-                <span>8 Themes</span>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Budget Distribution</h3>
+                    <canvas id="budgetChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-bar"></i> Spending by Category</h3>
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Monthly Trend</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Spending Heatmap</h3>
+                    <div id="expenseHeatmap" class="heatmap-container"></div>
+                </div>
             </div>
+        </section>
+
+        <section id="expenses" class="section">
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-sliders-h"></i> Category Limits</h3></div>
+                <div class="category-limits-form" id="categoryLimitsForm">
+                    <div class="limit-inputs" id="limitInputs"></div>
+                    <button class="btn btn-primary btn-sm" id="saveLimitsBtn"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-list"></i> All Expenses</h3>
+                    <div class="search-box"><i class="fas fa-search"></i><input type="text" id="searchExpenses" placeholder="Search..."></div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table" id="expensesTable">
+                        <thead>
+                            <tr><th>Category</th><th>Type</th><th>Amount</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="expensesTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="noExpenses" class="empty-state hidden"><i class="fas fa-receipt"></i><p>No expenses found.</p></div>
+            </div>
+        </section>
+
+        <section id="savings" class="section">
+            <div class="savings-goals-container">
+                <div class="card">
+                    <div class="card-header"><h3><i class="fas fa-bullseye"></i> Set Goal</h3></div>
+                    <form id="savingsGoalForm" class="savings-form">
+                        <div class="form-group"><label>Goal Name</label><input type="text" id="goalName" required></div>
+                        <div class="form-group"><label>Target Amount</label><input type="number" id="goalAmount" required></div>
+                        <div class="form-group"><label>Target Date</label><input type="date" id="goalDeadline"></div>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Create</button>
+                    </form>
+                </div>
+                <div class="goals-list" id="goalsList"></div>
+            </div>
+        </section>
+
+        <section id="insights" class="section">
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-icon"><i class="fas fa-arrow-up"></i></div>
+                    <h4>Highest</h4><p id="highestSpending">-</p><span class="insight-amount" id="highestAmount">₹0</span>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-icon"><i class="fas fa-arrow-down"></i></div>
+                    <h4>Lowest</h4><p id="lowestSpending">-</p><span class="insight-amount" id="lowestAmount">₹0</span>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-icon"><i class="fas fa-percentage"></i></div>
+                    <h4>Savings Rate</h4><p id="savingsRate">0%</p>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-icon"><i class="fas fa-calendar-week"></i></div>
+                    <h4>Avg Daily</h4><p id="avgDaily">₹0</p>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-header"><h3><i class="fas fa-lightbulb"></i> Suggestions</h3></div>
+                <div class="suggestions-list" id="suggestionsList">
+                    <div class="suggestion-item"><i class="fas fa-info-circle"></i><p>Add expenses for suggestions.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reports" class="section">
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-chart-line"></i> Weekly Report</h3></div>
+                <div class="weekly-report" id="weeklyReport"><p class="text-muted">Loading...</p></div>
+            </div>
+        </section>
+
+        <section id="add" class="section">
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-plus-circle"></i> Add Expense</h3></div>
+                <form id="addExpenseForm" class="expense-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="expenseCategory" required>
+                                <option value="">Select</option>
+                                <optgroup label="Needs">
+<option value="Rent/Mortgage">🏠 Rent/Mortgage</option>
+                                    <option value="Utilities">💡 Utilities</option>
+                                    <option value="Groceries">🛒 Groceries</option>
+                                    <option value="Healthcare">🏥 Healthcare</option>
+                                    <option value="Transportation">🚌 Transport</option>
+                                    <option value="Debt Payments">💳 Debt Payments</option>
+                                    <option value="Phone/Internet">📱 Phone/Internet</option>
+                                </optgroup>
+                                <optgroup label="Wants">
+<option value="Dining Out">🍔 Dining Out</option>
+                                    <option value="Entertainment">🎬 Entertainment</option>
+                                    <option value="Shopping">🛍️ Shopping</option>
+                                    <option value="Coffee">☕ Coffee</option>
+                                    <option value="Subscriptions">📺 Subscriptions</option>
+                                    <option value="Hobbies">🎨 Hobbies</option>
+                                    <option value="Travel">✈️ Travel</option>
+                                    <option value="Personal Care">💅 Personal Care</option>
+                                </optgroup>
+    <optgroup label="Savings">
+                                    <option value="Emergency Fund">🛡️ Emergency Fund</option>
+                                    <option value="Investments">📈 Investments</option>
+                                    <option value="Retirement">👴 Retirement</option>
+                                    <option value="Education">🎓 Education</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input type="number" id="expenseAmount" required min="1" placeholder="Enter amount">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <input type="text" id="expenseDescription" placeholder="Notes...">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add Expense</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="backup" class="section">
+            <!-- Copy & Notepad Option -->
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-copy"></i> Copy & Paste Anywhere</h3></div>
+                <div class="backup-content">
+                    <p>Copy your expenses to paste anywhere (Notepad, Word, Email, WhatsApp)</p>
+                    <div class="notepad-container">
+                        <pre id="expenseNotepad" style="font-size: 0.8rem; white-space: pre-wrap;">Loading...</pre>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
+                        <button id="copyNotepadBtn" class="btn btn-primary"><i class="fas fa-copy"></i> Copy All</button>
+                        <button id="downloadTextBtn" class="btn btn-success"><i class="fas fa-file-alt"></i> Save as Notepad</button>
+                        <button id="exportWordBtn" class="btn btn-info"><i class="fas fa-file-word"></i> Word Doc</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Excel/CSV Option -->
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-file-excel"></i> Export to Excel/CSV</h3></div>
+                <div class="backup-content">
+                    <p>Download as CSV file to open in Excel or Google Sheets</p>
+                    <div style="margin-top: 15px;">
+                        <button id="exportCSVBtn" class="btn btn-success"><i class="fas fa-download"></i> Download CSV</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Text File Option -->
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-file-alt"></i> Export as Text File</h3></div>
+                <div class="backup-content">
+                    <p>Save as text file for Notepad:</p>
+                    <div style="margin-top: 15px;">
+                        <button id="exportTextBtn" class="btn btn-secondary"><i class="fas fa-download"></i> Download Text</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Data -->
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-cloud-download-alt"></i> Import Data</h3></div>
+                <div class="backup-content">
+                    <p>Restore your expenses from backup files</p>
+                    <div style="margin-top: 15px; color: #e74c3c;"><i class="fas fa-exclamation-triangle"></i> Note: Importing will ADD to existing data!</div>
+                    <div style="margin-top: 15px;">
+                        <label for="importCSVFile" class="btn btn-success" style="cursor:pointer;"><i class="fas fa-file-csv"></i> Import CSV</label>
+                        <input type="file" id="importCSVFile" accept=".csv" style="display:none;">
+                        <span id="importCSVFileName" style="margin-left: 10px; color: var(--text-light);">No file chosen</span>
+                    </div>
+                    <div style="margin-top: 10px;">
+                        <label for="importTextFile" class="btn btn-secondary" style="cursor:pointer;"><i class="fas fa-file-alt"></i> Import Text</label>
+                        <input type="file" id="importTextFile" accept=".txt" style="display:none;">
+                        <span id="importTextFileName" style="margin-left: 10px; color: var(--text-light);">No file chosen</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="deleted" class="section">
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-trash-restore"></i> Deleted Expenses</h3></div>
+                <div class="table-responsive">
+                    <table class="data-table" id="deletedTable">
+                        <thead>
+                            <tr><th>Category</th><th>Amount</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="deletedTableBody"></tbody>
+                    </table>
+                </div>
+                <div id="noDeleted" class="empty-state hidden"><i class="fas fa-check-circle"></i><p>No deleted expenses.</p></div>
+            </div>
+        </section>
+
+        <section id="settings" class="section">
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-palette"></i> App Theme - 8 Color Themes</h3></div>
+                <div class="settings-content">
+                    <p style="color: var(--text-light); margin-bottom: 15px;">Choose your favorite color theme:</p>
+                    <div class="theme-grid" id="themeGrid"></div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-globe"></i> Currency</h3></div>
+                <div class="settings-content">
+                    <div class="form-group">
+                        <label>Select Currency</label>
+                        <select id="currencySelect" class="form-control">
+                            <option value="INR">INR (Indian Rupee)</option>
+                            <option value="USD">USD (US Dollar)</option>
+                            <option value="EUR">EUR (Euro)</option>
+                            <option value="GBP">GBP (British Pound)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-bell"></i> Notifications</h3></div>
+                <div class="settings-content">
+                    <div class="setting-toggle">
+                        <div><strong>Budget Alerts</strong><span class="setting-desc">Get notified when you exceed budget</span></div>
+                        <label class="switch"><input type="checkbox" id="notificationToggle" checked><span class="slider"></span></label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header"><h3><i class="fas fa-user"></i> Profile</h3></div>
+                <div class="settings-content">
+                    <div class="form-group">
+                        <label>Monthly Income</label>
+                        <input type="number" id="settingsIncome" class="form-control" placeholder="Enter monthly income">
+                    </div>
+                    <button id="saveSettingsBtn" class="btn btn-primary"><i class="fas fa-save"></i> Save Settings</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3><i class="fas fa-info-circle"></i> About</h3></div>
+                <div class="settings-content">
+                    <p><strong>Smart Budget Planner</strong></p>
+                    <p style="color: var(--text-light);">Version 1.0.0</p>
+                    <p style="color: var(--text-light);">A simple expense tracking app.</p>
+                </div>
+            </div>
+        </section>
+
+        <div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toastMessage"></span></div>
+    </main>
+
+    <div id="quickAddModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Quick Add</h3>
+                <button class="modal-close" id="closeQuickAdd">&times;</button>
+            </div>
+            <form id="quickAddForm">
+                <div class="form-group"><label>Category</label><input type="text" id="quickCategory" readonly></div>
+                <div class="form-group"><label>Amount</label><input type="number" id="quickAmount" required></div>
+                <div class="form-group"><label>Date</label><input type="date" id="quickDate" required></div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add</button>
+            </form>
         </div>
     </div>
 
     <script src="js/utils.js"></script>
+    <script src="js/dashboard.js"></script>
     <script>
-        // Smart Budget Planner - Auth
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js').catch(function(err) { console.log('SW failed'); });
+            });
+        }
+        
+        // Auth check - if not logged in, show login overlay or redirect
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if already logged in
             var currentUser = localStorage.getItem('smart_budget_current_user');
-            if (currentUser) {
-                window.location.href = 'dashboard.html';
-                return;
-            }
-            
-            // Initialize theme
-            var savedTheme = localStorage.getItem('smart_budget_theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // Theme toggle
-            var themeToggle = document.getElementById('themeToggle');
-            themeToggle.addEventListener('click', function() {
-                var current = document.documentElement.getAttribute('data-theme');
-                var newTheme = current === 'light' ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('smart_budget_theme', newTheme);
-            });
-            
-            // Tab switching
-            var tabBtns = document.querySelectorAll('.tab-btn');
-            tabBtns.forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    var tab = btn.dataset.tab;
-                    tabBtns.forEach(function(b) { b.classList.remove('active'); });
-                    btn.classList.add('active');
-                    document.querySelectorAll('.auth-form').forEach(function(form) {
-                        form.classList.remove('active');
-                    });
-                    document.getElementById(tab === 'login' ? 'loginForm' : 'registerForm').classList.add('active');
-                    hideMessage();
-                });
-            });
-            
-            // Password toggle
-            var toggleBtns = document.querySelectorAll('.toggle-password');
-            toggleBtns.forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    var input = btn.previousElementSibling;
-                    var icon = btn.querySelector('i');
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.remove('fa-eye');
-                        icon.classList.add('fa-eye-slash');
-                    } else {
-                        input.type = 'password';
-                        icon.classList.remove('fa-eye-slash');
-                        icon.classList.add('fa-eye');
-                    }
-                });
-            });
-            
-            // Login form
-            document.getElementById('loginForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                var email = document.getElementById('loginEmail').value.trim();
-                var password = document.getElementById('loginPassword').value;
-                
-                if (!email || !password) {
-                    showMessage('Please fill in all fields');
-                    return;
-                }
-                
-                var users = JSON.parse(localStorage.getItem('smart_budget_users') || '[]');
-                var user = users.find(function(u) { return u.email.toLowerCase() === email.toLowerCase(); });
-                
-                if (!user) {
-                    showMessage('User not found. Please register first.');
-                    return;
-                }
-                
-                // Hash check
-                var hash = 0;
-                for (var i = 0; i < password.length; i++) {
-                    var char = password.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                var hashedPassword = hash.toString(16);
-                
-                if (user.password !== hashedPassword) {
-                    showMessage('Invalid password');
-                    return;
-                }
-                
-                var userWithoutPassword = Object.assign({}, user);
-                delete userWithoutPassword.password;
-                localStorage.setItem('smart_budget_current_user', JSON.stringify(userWithoutPassword));
-                
-                showMessage('Login successful! Redirecting...', 'success');
-                setTimeout(function() {
-                    window.location.href = 'dashboard.html';
-                }, 800);
-            });
-            
-            // Register form
-            document.getElementById('registerForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                var username = document.getElementById('regUsername').value.trim();
-                var email = document.getElementById('regEmail').value.trim();
-                var password = document.getElementById('regPassword').value;
-                var monthlyIncome = document.getElementById('regIncome').value;
-                
-                if (!username || !email || !password) {
-                    showMessage('Please fill in all required fields');
-                    return;
-                }
-                
-                if (username.length < 3) {
-                    showMessage('Username must be at least 3 characters');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showMessage('Password must be at least 6 characters');
-                    return;
-                }
-                
-                var users = JSON.parse(localStorage.getItem('smart_budget_users') || '[]');
-                
-                if (users.find(function(u) { return u.email.toLowerCase() === email.toLowerCase(); })) {
-                    showMessage('Email already registered');
-                    return;
-                }
-                
-                if (users.find(function(u) { return u.username.toLowerCase() === username.toLowerCase(); })) {
-                    showMessage('Username already taken');
-                    return;
-                }
-                
-                // Hash password
-                var hash = 0;
-                for (var i = 0; i < password.length; i++) {
-                    var char = password.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + char;
-                    hash = hash & hash;
-                }
-                var hashedPassword = hash.toString(16);
-                
-                var newUser = {
-                    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
-                    username: username,
-                    email: email.toLowerCase(),
-                    password: hashedPassword,
-                    monthlyIncome: parseFloat(monthlyIncome) || 0,
-                    createdAt: new Date().toISOString()
-                };
-                
-                users.push(newUser);
-                localStorage.setItem('smart_budget_users', JSON.stringify(users));
-                
-                var userWithoutPassword = Object.assign({}, newUser);
-                delete userWithoutPassword.password;
-                localStorage.setItem('smart_budget_current_user', JSON.stringify(userWithoutPassword));
-                
-                showMessage('Account created! Redirecting...', 'success');
-                setTimeout(function() {
-                    window.location.href = 'dashboard.html';
-                }, 800);
-            });
-            
-            function showMessage(message, type) {
-                type = type || 'error';
-                var authMessage = document.getElementById('authMessage');
-                authMessage.textContent = message;
-                authMessage.className = 'message ' + type;
-            }
-            
-            function hideMessage() {
-                var authMessage = document.getElementById('authMessage');
-                authMessage.className = 'message';
-                authMessage.textContent = '';
+            if (!currentUser) {
+                // Optionally show login modal instead of redirect
+                console.log('No user logged in - login functionality inline');
             }
         });
     </script>
 </body>
 </html>
-
