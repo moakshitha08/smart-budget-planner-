@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Budget Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="auth-page">
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h1>Smart Budget Planner</h1>
+                </div>
+                <p class="tagline">Master your money with the 50-30-20 rule</p>
+            </div>
+
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="loginEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword"><i class="fas fa-lock"></i> Password</label>
+                    <div class="password-input">
+                        <input type="password" id="loginPassword" required placeholder="Enter your password">
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </form>
+
+            <div id="authMessage" class="message"></div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: var(--text-light); font-size: 0.9rem;">Don't have an account? <a href="index.html" style="color: var(--primary-color); font-weight: 600;">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        // Simple login using localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if already logged in
+            var currentUser = localStorage.getItem('smart_budget_current_user');
+            if (currentUser) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Initialize theme
+            var savedTheme = localStorage.getItem('smart_budget_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Theme toggle
+            var themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', function() {
+                var current = document.documentElement.getAttribute('data-theme');
+                var newTheme = current === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('smart_budget_theme', newTheme);
+            });
+            
+            // Password toggle
+            var toggleBtns = document.querySelectorAll('.toggle-password');
+            toggleBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var input = btn.previousElementSibling;
+                    var icon = btn.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                });
+            });
+            
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var email = document.getElementById('loginEmail').value.trim();
+                var password = document.getElementById('loginPassword').value;
+                
+                if (!email || !password) {
+                    showMessage('Please fill in all fields');
+                    return;
+                }
+                
+                // Get users from localStorage
+                var users = JSON.parse(localStorage.getItem('smart_budget_users') || '[]');
+                var user = users.find(function(u) { return u.email.toLowerCase() === email.toLowerCase(); });
+                
+                if (!user) {
+                    showMessage('User not found. Please register first.');
+                    return;
+                }
+                
+                // Simple hash check (same as utils.js)
+                var hash = 0;
+                for (var i = 0; i < password.length; i++) {
+                    var char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                var hashedPassword = hash.toString(16);
+                
+                if (user.password !== hashedPassword) {
+                    showMessage('Invalid password');
+                    return;
+                }
+                
+                // Login successful - save current user
+                var userWithoutPassword = Object.assign({}, user);
+                delete userWithoutPassword.password;
+                localStorage.setItem('smart_budget_current_user', JSON.stringify(userWithoutPassword));
+                
+                showMessage('Login successful! Redirecting...', 'success');
+                setTimeout(function() {
+                    window.location.href = 'dashboard.html';
+                }, 800);
+            });
+            
+            function showMessage(message, type) {
+                type = type || 'error';
+                var authMessage = document.getElementById('authMessage');
+                authMessage.textContent = message;
+                authMessage.className = 'message ' + type;
+            }
+        });
+    </script>
+</body>
+</html>
+
