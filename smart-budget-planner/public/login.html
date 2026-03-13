@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Smart Budget Planner</title>
+    <title>Smart Budget Planner - Register</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,7 +26,12 @@
                 <p class="tagline">Master your money with the 50-30-20 rule</p>
             </div>
 
-            <form id="loginForm" class="auth-form active">
+            <div class="auth-tabs">
+                <button class="tab-btn" data-tab="login">Login</button>
+                <button class="tab-btn active" data-tab="register">Register</button>
+            </div>
+
+            <form id="loginForm" class="auth-form">
                 <div class="form-group">
                     <label for="loginEmail"><i class="fas fa-envelope"></i> Email</label>
                     <input type="email" id="loginEmail" required placeholder="Enter your email">
@@ -43,22 +48,66 @@
                 </button>
             </form>
 
+            <form id="registerForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="regUsername"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="regUsername" required placeholder="Choose a username" minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="regEmail"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="email" id="regEmail" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="regPassword"><i class="fas fa-lock"></i> Password</label>
+                    <div class="password-input">
+                        <input type="password" id="regPassword" required placeholder="Create password" minlength="6">
+                        <button type="button" class="toggle-password"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regIncome"><i class="fas fa-money-bill-wave"></i> Monthly Income (INR)</label>
+                    <input type="number" id="regIncome" placeholder="Optional: Enter monthly income" min="0">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+
             <div id="authMessage" class="message"></div>
-            
-            <div style="text-align: center; margin-top: 20px;">
-                <p style="color: var(--text-light); font-size: 0.9rem;">Don't have an account? <a href="index.html" style="color: var(--primary-color); font-weight: 600;">Register here</a></p>
+        </div>
+
+        <div class="features-preview">
+            <div class="feature-item">
+                <i class="fas fa-chart-pie"></i>
+                <span>50-30-20 Budget</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-file-csv"></i>
+                <span>Export Excel</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-bell"></i>
+                <span>Smart Alerts</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-sticky-note"></i>
+                <span>Notepad</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-palette"></i>
+                <span>8 Themes</span>
             </div>
         </div>
     </div>
 
     <script src="js/utils.js"></script>
     <script>
-        // Simple login using localStorage
+        // Smart Budget Planner - Auth - ORIGINAL WORKING VERSION
         document.addEventListener('DOMContentLoaded', function() {
             // Check if already logged in
             var currentUser = localStorage.getItem('smart_budget_current_user');
             if (currentUser) {
-                window.location.href = 'dashboard.html';
+                window.location.href = 'index.html';
                 return;
             }
             
@@ -73,6 +122,21 @@
                 var newTheme = current === 'light' ? 'dark' : 'light';
                 document.documentElement.setAttribute('data-theme', newTheme);
                 localStorage.setItem('smart_budget_theme', newTheme);
+            });
+            
+            // Tab switching
+            var tabBtns = document.querySelectorAll('.tab-btn');
+            tabBtns.forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var tab = btn.dataset.tab;
+                    tabBtns.forEach(function(b) { b.classList.remove('active'); });
+                    btn.classList.add('active');
+                    document.querySelectorAll('.auth-form').forEach(function(form) {
+                        form.classList.remove('active');
+                    });
+                    document.getElementById(tab === 'login' ? 'loginForm' : 'registerForm').classList.add('active');
+                    hideMessage();
+                });
             });
             
             // Password toggle
@@ -105,7 +169,6 @@
                     return;
                 }
                 
-                // Get users from localStorage
                 var users = JSON.parse(localStorage.getItem('smart_budget_users') || '[]');
                 var user = users.find(function(u) { return u.email.toLowerCase() === email.toLowerCase(); });
                 
@@ -114,7 +177,7 @@
                     return;
                 }
                 
-                // Simple hash check (same as utils.js)
+                // Hash check
                 var hash = 0;
                 for (var i = 0; i < password.length; i++) {
                     var char = password.charCodeAt(i);
@@ -128,14 +191,80 @@
                     return;
                 }
                 
-                // Login successful - save current user
                 var userWithoutPassword = Object.assign({}, user);
                 delete userWithoutPassword.password;
                 localStorage.setItem('smart_budget_current_user', JSON.stringify(userWithoutPassword));
                 
                 showMessage('Login successful! Redirecting...', 'success');
                 setTimeout(function() {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'index.html';
+                }, 800);
+            });
+            
+            // Register form
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                var username = document.getElementById('regUsername').value.trim();
+                var email = document.getElementById('regEmail').value.trim();
+                var password = document.getElementById('regPassword').value;
+                var monthlyIncome = document.getElementById('regIncome').value;
+                
+                if (!username || !email || !password) {
+                    showMessage('Please fill in all required fields');
+                    return;
+                }
+                
+                if (username.length < 3) {
+                    showMessage('Username must be at least 3 characters');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showMessage('Password must be at least 6 characters');
+                    return;
+                }
+                
+                var users = JSON.parse(localStorage.getItem('smart_budget_users') || '[]');
+                
+                if (users.find(function(u) { return u.email.toLowerCase() === email.toLowerCase(); })) {
+                    showMessage('Email already registered');
+                    return;
+                }
+                
+                if (users.find(function(u) { return u.username.toLowerCase() === username.toLowerCase(); })) {
+                    showMessage('Username already taken');
+                    return;
+                }
+                
+                // Hash password
+                var hash = 0;
+                for (var i = 0; i < password.length; i++) {
+                    var char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash;
+                }
+                var hashedPassword = hash.toString(16);
+                
+                var newUser = {
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+                    username: username,
+                    email: email.toLowerCase(),
+                    password: hashedPassword,
+                    monthlyIncome: parseFloat(monthlyIncome) || 0,
+                    createdAt: new Date().toISOString()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('smart_budget_users', JSON.stringify(users));
+                
+                var userWithoutPassword = Object.assign({}, newUser);
+                delete userWithoutPassword.password;
+                localStorage.setItem('smart_budget_current_user', JSON.stringify(userWithoutPassword));
+                
+                showMessage('Account created! Redirecting...', 'success');
+                setTimeout(function() {
+                    window.location.href = 'index.html';
                 }, 800);
             });
             
@@ -145,8 +274,13 @@
                 authMessage.textContent = message;
                 authMessage.className = 'message ' + type;
             }
+            
+            function hideMessage() {
+                var authMessage = document.getElementById('authMessage');
+                authMessage.className = 'message';
+                authMessage.textContent = '';
+            }
         });
     </script>
 </body>
 </html>
-
